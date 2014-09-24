@@ -1,0 +1,234 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Sep 23, 2014, 6:15:37 PM
+    Author     : Manohar
+*/
+
+#online{
+    
+    height: 670px;
+    width: 240px;
+    position: absolute;
+    border: none;
+    box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.2);
+    right: 0px;
+    top: 0px;
+    
+    padding-top: 25px; 
+}
+
+li:hover{
+    
+    background: #ddd;
+    
+}
+
+li {
+    padding:5px;
+    cursor:pointer;
+    list-style-type: none;
+}
+
+.chch-userAvatarWrapper{
+
+    display: inline-block;
+
+}
+
+li span{
+    position: relative;
+    left: 7px;
+    top: -6px;
+}
+
+.chch-emptyAvatar {
+width: 25px;
+height: 25px;
+}
+
+.chch-circularAvatar {
+border-radius: 50%;
+-webkit-border-radius: 50%;
+}
+
+.chch-emptyAvatar{
+
+background: radial-gradient(ellipse at center, rgba(252,255,244,1) 0%,rgba(223,229,215,1) 40%,rgba(179,190,173,1) 100%);
+
+
+}
+
+.window1, .window2, .window3{
+    display: none;
+    position:absolute;
+    right:300px;
+    width: 276px;
+    bottom: 0px;
+}
+
+.window2{
+    
+    right: 583px;
+}
+
+.window3{
+    
+    right: 870px;
+}
+
+
+li i{
+margin-top: 5px;  
+display: inline-block;
+background: #E43C03;
+text-align: center;
+color: #FFF;
+font-size: 12px;
+font-weight: bold;
+-moz-border-radius: 6px;
+-webkit-border-radius: 6px;
+border-radius: 6px;
+width: 14px;
+z-index: 1;
+margin: 0px 1px 0px 18px;
+position: absolute;
+padding: 1px;
+    
+}
+
+.header{
+box-sizing: content-box;
+text-indent: 0;    
+height: 23px;
+cursor: pointer;
+border-top-style: solid;
+border-left-style: solid;
+border-right-style: solid;
+border-top-width: 1px;
+border-left-width: 1px;
+border-right-width: 1px;
+-webkit-border-radius: 6px 6px 0px 0px;
+border-radius: 6px 6px 0px 0px;
+border-color: #333333;
+background: #333333;
+}
+
+.content{
+    padding:7px;
+ background: white;   
+ height: 241px;
+ border-left: 1px solid #c0c0c0;
+ border-right: 1px solid #c0c0c0;
+ 
+ padding: 10px;
+}
+
+
+.data-msg{
+
+max-width: 340px;
+float: left;
+position: relative;
+padding: 7px 12px;
+font-size: 12px;
+line-height: 18px;
+word-wrap: break-word;
+background-color: #e1e8ed;
+border-radius: 4px;
+margin-bottom: 8px;
+
+}
+
+.dm-caret {
+position: absolute;
+top: 12px;
+
+width: 10px;
+height: 10px;
+right: -10px;
+left: auto;
+}
+
+
+.dm-caretf {
+position: absolute;
+top: 12px;
+
+width: 10px;
+height: 10px;
+right: auto;
+left: -5px;
+}
+
+
+
+.send .dm-caret-outer {
+border-right: 0 !important;
+border-left: 5px solid #3b94d9;
+}
+.send .dm-caret-outer {
+top: 0;
+left: 0;
+z-index: 10;
+border-top: 5px solid transparent;
+border-right: 5px solid #e1e8ed;
+border-bottom: 5px solid transparent;
+}
+.dm-caret-inner, .dm-caret-outer {
+position: absolute;
+width: 0;
+height: 0;
+vertical-align: text-bottom;
+}
+
+.send .dm-caret-inner {
+left: -1px;
+border-right: 0 !important;
+border-left: 4px solid #3b94d9;
+}
+.send .dm-caret-inner {
+top: 1px;
+left: 1px;
+z-index: 11;
+border-top: 4px solid transparent;
+border-right: 4px solid #e1e8ed;
+border-bottom: 4px solid transparent;
+}
+.dm-caret-inner, .dm-caret-outer {
+position: absolute;
+width: 0;
+height: 0;
+vertical-align: text-bottom;
+}
+
+.rec .dm-caret-outer {
+border-left: 0 !important;
+border-right: 5px solid #3b94d9;
+}
+.rec .dm-caret-outer {
+top: 0;
+left: 0;
+z-index: 10;
+border-top: 5px solid transparent;
+border-right: 5px solid #e1e8ed;
+border-bottom: 5px solid transparent;
+}
+
+.rec .dm-caret-inner {
+left: -1px;
+border-left: 0 !important;
+border-right: 4px solid #3b94d9 !important;
+}
+.rec .dm-caret-inner {
+top: 1px;
+left: 1px;
+z-index: 11;
+border-top: 4px solid transparent;
+border-right: 4px solid #e1e8ed;
+border-bottom: 4px solid transparent;
+}
+

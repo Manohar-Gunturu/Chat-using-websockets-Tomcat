@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <title>Apache Tomcat Chat</title>
+    <link rel="stylesheet" type="text/css" href="CSS/chat.css" />
+     
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+   
+    <style type="text/css"> 
+        
+      
+        input#chat {
+            width: 410px
+        }
+
+        #console-container {
+            width: 400px;
+        }
+
+        #console {
+            border: 1px solid #CCCCCC;
+            border-right-color: #999999;
+            border-bottom-color: #999999;
+            height: 170px;
+            overflow-y: scroll;
+            padding: 5px;
+            width: 100%;
+        }
+
+        #console p {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    
+    <script type="application/javascript">
+        
+
+        var Chat = {};
+        var windows_ass = {};
+        var message_holder = {};
+	function getParameterByName(name) {
+		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+		results = regex.exec(location.search);
+		return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+         }  
+		
+        Chat.socket = null;
+
+        Chat.connect = (function(host) {
+            if ('WebSocket' in window) {
+                Chat.socket = new WebSocket(host);
+            } else if ('MozWebSocket' in window) {
+                Chat.socket = new MozWebSocket(host);
+            } else {
+                alert("Some thing went wrong!!");
+                return;
+            }
+
+            Chat.socket.onopen = function () {
+               
+              $( ".message" ).keydown(function(event) {
+                    
+                     if (event.keyCode == 13) {
+                        var mto = $(this).attr('data-to');
+                        var text = $(this).val();
+                        sendMessage(mto,text);
+                       $(this).prev().append("<div class='data-msg send' style='margin-top:7px;float:right;color:#fff;background-color:#3b94d9;clear:both;' >" + text + " <div class='dm-caret'><div class='dm-caret-outer'></div><div class='dm-caret-inner'></div></div> </div>  <br/>");
+                       $(this).val('');
+                      }
+               
+               });     
+            };
+
+            Chat.socket.onclose = function () {
+                document.getElementById('chat').onkeydown = null;
+              
+            };
+            
+            
+
+            Chat.socket.onmessage = function (event) {
+		var div = document.getElementById('online');
+                
+                var message = JSON.parse(event.data);
+              
+                if(message.action == 'connected'){
+                  
+                  div.innerHTML = div.innerHTML + "<li id='"+message.name+"' > <div  class='chch-userAvatarWrapper'> <div class='chch-emptyAvatar chch-circularAvatar'><svg class='chch-emptyAvatarIco' enable-background='new 0 0 50 50' id='Layer_1' version='1.1' viewBox='0 0 50 50' xml:space='preserve' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect fill='none' height='50' width='50'></rect><path d='M30.933,32.528c-0.146-1.612-0.09-2.737-0.09-4.21c0.73-0.383,2.038-2.825,2.259-4.888c0.574-0.047,1.479-0.607,1.744-2.818 c0.143-1.187-0.425-1.855-0.771-2.065c0.934-2.809,2.874-11.499-3.588-12.397c-0.665-1.168-2.368-1.759-4.581-1.759 c-8.854,0.163-9.922,6.686-7.981,14.156c-0.345,0.21-0.913,0.878-0.771,2.065c0.266,2.211,1.17,2.771,1.744,2.818 c0.22,2.062,1.58,4.505,2.312,4.888c0,1.473,0.055,2.598-0.091,4.21C19.367,37.238,7.546,35.916,7,45h38 C44.455,35.916,32.685,37.238,30.933,32.528z'></path></svg></div> </div> <span>"+ message.name +" </span> <i> </i> </li>";     
+                }
+	        if(message.action == 'disconnected')
+                {
+  
+                 var to_remove = document.getElementById(message.name);
+                 to_remove.remove();
+                 
+                }
+                
+                if(message.action == 'frndmessage'){
+                      
+                   
+                    if(windows_ass[message.from] !== undefined )
+                    {
+                   
+                    $('.'+windows_ass[message.from]+ ' .content').append("<div class='data-msg rec' style='margin-top:7px;float:left;color:#fff;background-color:#3b94d9;clear:both;' >" + message.message + " <div class='dm-caretf'><div class='dm-caret-outer'></div><div class='dm-caret-inner'></div></div> </div> <br/>");
+                    
+                    }else{
+                    
+                  
+                   
+                    
+                    if(message_holder[message.from] === undefined)
+                     { 
+                       message_holder[message.from] = [];
+                     }
+                    var fr = message.from;
+                    message_holder[fr].push(message.message);
+                    
+                     $('#'+message.from+ ' i').html(message_holder[fr].length);
+                    }
+                }
+               
+            };
+        });
+
+        Chat.initialize = function() {
+		 var name = getParameterByName('name');
+            if (window.location.protocol == 'http:') {
+                Chat.connect('ws://localhost:8080/WebSockets/chat/'+name);
+            } else {
+                Chat.connect('ws://localhost:8080/WebSockets/chat/'+name);
+            }
+        };
+
+        function sendMessage(mto,message){
+         
+	    
+	    var information = {
+                  action: "Message",
+                  to: mto,
+                  message: message
+               };
+			
+			
+            if (message != '') {
+                Chat.socket.send(JSON.stringify(information));
+               
+				
+            }
+        }
+
+       
+       
+
+        Chat.initialize();
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Remove elements with "noscript" class - <noscript> is not allowed in XHTML
+            var noscripts = document.getElementsByClassName("noscript");
+            for (var i = 0; i < noscripts.length; i++) {
+                noscripts[i].parentNode.removeChild(noscripts[i]);
+            }
+        }, false);
+
+    </script>
+</head>
+<body>
+    <h2>Chat Using WebSockets: Tomcat server</h2>
+<div class="noscript"><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websockets rely on Javascript being enabled. Please enable
+    Javascript and reload this page!</h2>
+</div>
+
+    
+    <div id="online">
+        
+      
+        
+    </div>    
+    
+   
+        <div class="window1">
+            <div class="header"> 
+                <div style="float:left;margin-left: 9px;color: white;margin-top: 3px" class="from"></div>
+            <svg style="float:right" version="1.2" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" xml:space="preserve">
+<path d="M17.414,6.586c-0.78-0.781-2.048-0.781-2.828,0L12,9.172L9.414,6.586c-0.78-0.781-2.048-0.781-2.828,0
+	c-0.781,0.781-0.781,2.047,0,2.828L9.171,12l-2.585,2.586c-0.781,0.781-0.781,2.047,0,2.828C6.976,17.805,7.488,18,8,18
+	s1.024-0.195,1.414-0.586L12,14.828l2.586,2.586C14.976,17.805,15.488,18,16,18s1.024-0.195,1.414-0.586
+	c0.781-0.781,0.781-2.047,0-2.828L14.829,12l2.585-2.586C18.195,8.633,18.195,7.367,17.414,6.586z" fill="gainsboro"/>
+</svg>
+            </div>
+            <div class="content"> </div>
+            <input type="text" class="message" style="width: 272px;height: 30px;" data-to="" />
+        </div>
+        
+        
+    <div class="window2">
+            <div class="header">
+            <div style="float:left;margin-left: 9px;color: white;margin-top: 3px" class="from"></div>    
+            <svg style="float:right" version="1.2" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" xml:space="preserve">
+<path d="M17.414,6.586c-0.78-0.781-2.048-0.781-2.828,0L12,9.172L9.414,6.586c-0.78-0.781-2.048-0.781-2.828,0
+	c-0.781,0.781-0.781,2.047,0,2.828L9.171,12l-2.585,2.586c-0.781,0.781-0.781,2.047,0,2.828C6.976,17.805,7.488,18,8,18
+	s1.024-0.195,1.414-0.586L12,14.828l2.586,2.586C14.976,17.805,15.488,18,16,18s1.024-0.195,1.414-0.586
+	c0.781-0.781,0.781-2.047,0-2.828L14.829,12l2.585-2.586C18.195,8.633,18.195,7.367,17.414,6.586z" fill="gainsboro"/>
+</svg>
+            </div>
+            <div class="content"> </div>
+            <input type="text" class="message" style="width: 272px;height: 30px;" data-to="" />
+        </div>        
+     
+        
+    <div class="window3">
+            <div class="header">
+            <div style="float:left;margin-left: 9px;color: white;margin-top: 3px" class="from"></div>    
+            <svg style="float:right" version="1.2" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" xml:space="preserve">
+<path d="M17.414,6.586c-0.78-0.781-2.048-0.781-2.828,0L12,9.172L9.414,6.586c-0.78-0.781-2.048-0.781-2.828,0
+	c-0.781,0.781-0.781,2.047,0,2.828L9.171,12l-2.585,2.586c-0.781,0.781-0.781,2.047,0,2.828C6.976,17.805,7.488,18,8,18
+	s1.024-0.195,1.414-0.586L12,14.828l2.586,2.586C14.976,17.805,15.488,18,16,18s1.024-0.195,1.414-0.586
+	c0.781-0.781,0.781-2.047,0-2.828L14.829,12l2.585-2.586C18.195,8.633,18.195,7.367,17.414,6.586z" fill="gainsboro"/>
+</svg>
+            </div>
+            <div class="content"> </div>
+            <input type="text" class="message" style="width: 272px;height: 30px;" data-to="" />
+        </div>        
+ 
+        <script>
+         
+             var windows = [] ;
+             
+          $( "body" ).on( 'click', '#online li', function (){
+            
+           
+            
+             var mesg_to = $(this).attr('id'); 
+            
+            if( windows.indexOf("window1") === -1){
+              
+              windows_ass[mesg_to] = "window1";
+              windows.push("window1");
+              $(".window1").show();
+              $(".window1 .from").text(mesg_to);
+              $('.window1 input').attr( 'data-to', mesg_to);
+              
+              if(message_holder[mesg_to] !== undefined)
+               { 
+                   var lengt =  message_holder[mesg_to].length; 
+                   for (var i = 0; i<lengt; i++) {
+                   
+                      
+                     $('.window1 .content').append("<div class='data-msg rec' style='margin-top:7px;float:left;color:#fff;background-color:#3b94d9;clear:both;' >" + message_holder[mesg_to][i] + " <div class='dm-caretf'><div class='dm-caret-outer'></div><div class='dm-caret-inner'></div></div> </div> <br/>");   
+                     
+                     
+                     }  
+                     
+               }
+ 
+            }
+            else if( windows.indexOf("window2") === -1 ) 
+             {
+             
+              windows_ass[mesg_to] = "window2";
+              windows.push("window2");
+              $(".window2").show();
+              $(".window2 .from").text(mesg_to);
+              $('.window2 input').attr( 'data-to', mesg_to);
+              
+             }
+             else {
+             
+              windows_ass[mesg_to] = "window3";
+              windows.push("window3");
+              $(".window3").show();
+              $(".window3 .from").text(mesg_to);
+              $('.window3 input').attr( 'data-to', mesg_to);
+             
+             }
+           
+          });
+            
+            
+        </script>
+        
+        
+</body>
+</html>
