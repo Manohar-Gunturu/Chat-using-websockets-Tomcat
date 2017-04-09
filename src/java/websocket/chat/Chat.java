@@ -23,8 +23,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.PathParam;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
 import java.util.*;
 import java.io.*;
 import javax.json.spi.JsonProvider;
@@ -33,7 +31,7 @@ import javax.json.spi.JsonProvider;
 @ServerEndpoint(value = "/chat/{client-id}")
 public class Chat {
     
-    private static final Log log = LogFactory.getLog(Chat.class);
+ 
     static Map<String, Session> hm = new HashMap<String, Session>( );
    
   
@@ -108,7 +106,7 @@ public class Chat {
 
     @OnError
     public void onError(Throwable t) throws Throwable {
-        log.error("Chat Error: " + t.toString(), t);
+       System.out.println("Chat Error: " + t.toString());
     }
 
 
@@ -119,7 +117,7 @@ public class Chat {
                     client.session.getBasicRemote().sendText(msg.toString());
                 }
             } catch (IOException e) {
-                log.debug("Chat Error: Failed to send message to client", e);
+                System.out.println("Chat Error: Failed to send message to client"+ e);
                 connections.remove(client);
                 try {
                     client.session.close();
@@ -155,7 +153,7 @@ public class Chat {
                    jk.getBasicRemote().sendText(msg1.toString());
                
               } catch (IOException e) {
-                log.debug("Chat Error: Failed to send message to client", e);
+                System.out.println("Chat Error: Failed to send message to client"+e);
       
              }
       
@@ -166,10 +164,9 @@ public class Chat {
         Session jk =   hm.get(to);
         
          try {
-                 jk.getBasicRemote().sendText(conn.toString());
-               
+                 jk.getBasicRemote().sendText(conn.toString());               
               } catch (IOException e) {
-                log.debug("Chat Error: Failed to send message to client", e);
+                System.out.println("Chat Error: Failed to send message to client"+e);
       
              }
     
